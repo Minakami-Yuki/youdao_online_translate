@@ -3,14 +3,14 @@ import os
 import re
 from selenium import webdriver
 
-print("main start")
+#print("main start")
 driver_path="C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 chrome=webdriver.Chrome(driver_path)
-print("get driver")
+#print("get driver")
 chrome.get("http://fanyi.youdao.com/")
-file=open('01backup.txt','r',encoding='UTF-8')
-file_out=open('01out.txt','w',encoding='UTF-8')
-print("get text")
+file=open('14.txt','r',encoding='UTF-8')
+file_out=open('14out.txt','a',encoding='UTF-8')
+#print("get text")
 #print(file.read())
 
 list_origin=file.readlines()
@@ -24,7 +24,7 @@ for i in range(0,len(list_origin)):
         tmp=list_origin[i][8:]
         #应使用8，不知为何运气好时可以使用8？？？？？
         #不能接受空字符串，删除空行可解决问题
-        print("origin sentence:"+tmp,end='')
+        #print("origin sentence:"+tmp,end='')
 
         try:
             script = "lans = document.getElementById('languageSelect');lans.childNodes[9].firstElementChild.click()"
@@ -34,11 +34,12 @@ for i in range(0,len(list_origin)):
             chrome.execute_script(script)
             inputOriginal = chrome.find_element_by_id('inputOriginal')
             inputOriginal.send_keys(tmp)
-            chrome.implicitly_wait(1)
+            chrome.implicitly_wait(10)
+            #获取结果后刷新
             result = chrome.find_element_by_xpath('//div[@id="transTarget"]/p/span')
             #yield result.text
             trans=result.text
-            print("translate result:"+trans)
+            print("trans:"+trans)
             str=''.join(trans)
             #print("str:"+str)
             #使用replace需要重新赋值，都是坑TAT
@@ -46,7 +47,7 @@ for i in range(0,len(list_origin)):
             #str.replace('"','')
             str=str.replace('”','')
             #str.replace('〇', '')
-            print("after processed:"+str)
+            #print("after processed:"+str)
             chrome.refresh()
         except Exception as e:
             print("Exception happened:"+e)
@@ -56,16 +57,16 @@ for i in range(0,len(list_origin)):
         res2 = key.search(list_origin[i + 1])  # 根据语法规则此判定必中
         tmp2 = list_origin[i + 1][8:]
         if tmp2[0] == '「':
-            print("匹配到引号")
+            #print("匹配到引号")
             tt = ""
             tt = list_origin[i + 1][:9]
             tt = tt + str + "」"
             # end=tmp2.find('」')
             file_out.write(tt)
-            print("this is a test for tt:" + tt)
+            #print("this is a test for tt:" + tt)
         # elif tmp2[0]!='「':
         else:
-            print("未找到引号")
+            #print("未找到引号")
             tt = ""
             tt = list_origin[i + 1][:8]
             tt = tt + str
@@ -74,8 +75,10 @@ for i in range(0,len(list_origin)):
         keyy = re.compile(r'●')
         res = keyy.search(list_origin[i])
         if res:
-            print("跳过此行")
+            #print("跳过此行")
             file_out.write("\n")
         else:
             file_out.write(list_origin[i])
+    file_out.flush()
+
 
